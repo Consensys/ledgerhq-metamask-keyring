@@ -1,0 +1,1 @@
+# ledgerhq-metamask-keyring
