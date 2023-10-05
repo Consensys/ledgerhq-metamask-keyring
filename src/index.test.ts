@@ -324,9 +324,9 @@ describe("signTransaction", () => {
     );
 
     expect({
-      v: signedTx.v?.toString("hex"),
-      r: signedTx.r?.toString("hex"),
-      s: signedTx.s?.toString("hex"),
+      v: signedTx.v,
+      r: signedTx.r,
+      s: signedTx.s,
     }).toEqual({
       v: "1",
       r: "afb6e247b1c490e284053c87ab5f6b59e219d51f743f7a4d83e400782bc7e4b9",

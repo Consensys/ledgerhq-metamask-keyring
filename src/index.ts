@@ -12,10 +12,11 @@ import { TransactionFactory, TypedTransaction } from "@ethereumjs/tx";
 import {
   MessageTypes,
   recoverPersonalSignature,
-  recoverTypedSignature_v4,
+  recoverTypedSignature,
+  SignTypedDataVersion,
   TypedDataUtils,
   TypedMessage,
-} from "eth-sig-util";
+} from "@metamask/eth-sig-util";
 
 // eslint-disable-next-line
 global.Buffer = require("buffer").Buffer;
@@ -169,7 +170,7 @@ export default class LedgerKeyring {
     const hdPath = this._getHDPathFromAddress(address);
 
     // `getMessageToSign` will return valid RLP for all transaction types
-    const messageToSign = tx.getMessageToSign(false);
+    const messageToSign = tx.getMessageToSign();
 
     const rawTxHex = Buffer.isBuffer(messageToSign)
       ? messageToSign.toString("hex")
@@ -254,7 +255,7 @@ export default class LedgerKeyring {
     const signature = `0x${r}${s}${modifiedV}`;
     const addressSignedWith = recoverPersonalSignature({
       data: message,
-      sig: signature,
+      signature: signature,
     });
 
     if (toChecksumAddress(addressSignedWith) !== toChecksumAddress(address)) {
@@ -282,18 +283,22 @@ export default class LedgerKeyring {
       JSON.parse(data) as TypedMessage<MessageTypes>
     );
 
+    const selectedVersion = version
+      ? SignTypedDataVersion.V3
+      : SignTypedDataVersion.V4;
+
     const domainSeparatorHex = TypedDataUtils.hashStruct(
       "EIP712Domain",
       domain,
       types,
-      true
+      selectedVersion
     ).toString("hex");
 
     const hashStructMessageHex = TypedDataUtils.hashStruct(
       primaryType as string,
       message,
       types,
-      true
+      selectedVersion
     ).toString("hex");
 
     const hdPath = this._getHDPathFromAddress(address);
@@ -311,9 +316,10 @@ export default class LedgerKeyring {
 
     const signature = `0x${r}${s}${modifiedV}`;
 
-    const addressSignedWith = recoverTypedSignature_v4({
+    const addressSignedWith = recoverTypedSignature({
       data: JSON.parse(data) as TypedMessage<MessageTypes>,
-      sig: signature,
+      signature: signature,
+      version: selectedVersion,
     });
     if (toChecksumAddress(addressSignedWith) !== toChecksumAddress(address)) {
       throw new Error("Ledger: The signature doesnt match the right address");
