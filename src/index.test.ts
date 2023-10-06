@@ -52,8 +52,8 @@ describe("serialization", () => {
   test("type field is statically assigned", () => {
     const keyring = new LedgerKeyring();
 
-    expect(keyring.type).toBe("Ledger");
-    expect(LedgerKeyring.type).toBe("Ledger");
+    expect(keyring.type).toBe("Ledger Hardware");
+    expect(LedgerKeyring.type).toBe("Ledger Hardware");
   });
 
   test("successfully serializes state for default values", async () => {

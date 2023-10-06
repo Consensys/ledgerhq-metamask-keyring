@@ -17,12 +17,10 @@ import {
   TypedDataUtils,
   TypedMessage,
 } from "@metamask/eth-sig-util";
-
-// eslint-disable-next-line
-global.Buffer = require("buffer").Buffer;
+import { Buffer } from "buffer";
 
 const hdPathString = `m/44'/60'/0'/0/0`;
-const type = "Ledger";
+const type = "Ledger Hardware";
 
 type SerializationOptions = {
   hdPath?: string;
@@ -92,7 +90,7 @@ export default class LedgerKeyring {
   private transport?: Transport;
 
   constructor(opts: SerializationOptions = {}) {
-    this.name = "Ledger";
+    this.name = "Ledger Hardware";
 
     void this.deserialize(opts);
   }
