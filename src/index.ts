@@ -168,7 +168,7 @@ export default class LedgerKeyring {
     const hdPath = this._getHDPathFromAddress(address);
 
     // `getMessageToSign` will return valid RLP for all transaction types
-    const messageToSign = tx.getMessageToSign();
+    const messageToSign = tx.getMessageToSign(false);
 
     const rawTxHex = Buffer.isBuffer(messageToSign)
       ? messageToSign.toString("hex")
@@ -331,7 +331,7 @@ export default class LedgerKeyring {
     this.deviceId = "";
   };
 
-  setTransport = (transport: Transport, deviceId: string) => {
+  setTransport = (transport: any, deviceId: string) => {
     if (this.deviceId && this.deviceId !== deviceId) {
       throw new Error("LedgerKeyring: deviceId mismatch.");
     }
