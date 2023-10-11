@@ -1,22 +1,18 @@
 import AppEth from "@ledgerhq/hw-app-eth";
-import Transport from "@ledgerhq/hw-transport";
+import type Transport from "@ledgerhq/hw-transport";
 import ledgerService from "@ledgerhq/hw-app-eth/lib/services/ledger";
 import { LedgerEthTransactionResolution } from "@ledgerhq/hw-app-eth/lib/services/types";
-import {
-  rlp,
-  addHexPrefix,
-  stripHexPrefix,
-  toChecksumAddress,
-} from "ethereumjs-util";
+import * as ethUtil from "ethereumjs-util";
 import { TransactionFactory, TypedTransaction } from "@ethereumjs/tx";
 import {
   MessageTypes,
   recoverPersonalSignature,
-  recoverTypedSignature,
-  SignTypedDataVersion,
+  recoverTypedSignature_v4,
   TypedDataUtils,
   TypedMessage,
-} from "@metamask/eth-sig-util";
+} from "eth-sig-util";
+
+// eslint-disable-next-line
 import { Buffer } from "buffer";
 
 const hdPathString = `m/44'/60'/0'/0/0`;
@@ -36,7 +32,7 @@ export interface EthereumApp {
   getAddress(
     path: string,
     boolDisplay?: boolean,
-    boolChaincode?: boolean,
+    boolChaincode?: boolean
   ): Promise<{
     publicKey: string;
     address: string;
@@ -46,7 +42,7 @@ export interface EthereumApp {
   signTransaction(
     path: string,
     rawTxHex: string,
-    resolution?: LedgerEthTransactionResolution | null,
+    resolution?: LedgerEthTransactionResolution | null
   ): Promise<{
     s: string;
     v: string;
@@ -55,7 +51,7 @@ export interface EthereumApp {
 
   signPersonalMessage(
     path: string,
-    messageHex: string,
+    messageHex: string
   ): Promise<{
     v: number;
     s: string;
@@ -65,7 +61,7 @@ export interface EthereumApp {
   signEIP712HashedMessage(
     path: string,
     domainSeparatorHex: string,
-    hashStructMessageHex: string,
+    hashStructMessageHex: string
   ): Promise<{
     v: number;
     s: string;
@@ -90,7 +86,7 @@ export default class LedgerKeyring {
   private transport?: Transport;
 
   constructor(opts: SerializationOptions = {}) {
-    this.name = "Ledger Hardware";
+    this.name = "Ledger";
 
     void this.deserialize(opts);
   }
@@ -121,7 +117,7 @@ export default class LedgerKeyring {
     const accounts = await this.getAccounts();
     return accounts.some(
       (managedAddress) =>
-        managedAddress.toLocaleLowerCase() === address.toLocaleLowerCase(),
+        managedAddress.toLocaleLowerCase() === address.toLocaleLowerCase()
     );
   };
 
@@ -172,12 +168,11 @@ export default class LedgerKeyring {
 
     const rawTxHex = Buffer.isBuffer(messageToSign)
       ? messageToSign.toString("hex")
-      : rlp.encode(messageToSign).toString("hex");
+      : ethUtil.rlp.encode(messageToSign).toString("hex");
 
     const resolution = await ledgerService.resolveTransaction(rawTxHex, {}, {});
 
     const { r, s, v } = await app.signTransaction(hdPath, rawTxHex, resolution);
-
     // Because tx will be immutable, first get a plain javascript object that
     // represents the transaction. Using txData here as it aligns with the
     // nomenclature of ethereumjs/tx.
@@ -187,10 +182,9 @@ export default class LedgerKeyring {
     txData.type = `0x${tx.type}`;
 
     // The fromTxData utility expects v,r and s to be hex prefixed
-    txData.v = addHexPrefix(v);
-    txData.r = addHexPrefix(r);
-    txData.s = addHexPrefix(s);
-
+    txData.v = ethUtil.addHexPrefix(v);
+    txData.r = ethUtil.addHexPrefix(r);
+    txData.s = ethUtil.addHexPrefix(s);
     // Adopt the 'common' option from the original transaction and set the
     // returned object to be frozen if the original is frozen.
     const transaction = TransactionFactory.fromTxData(txData, {
@@ -207,7 +201,7 @@ export default class LedgerKeyring {
   }> => {
     if (!this.transport) {
       throw new Error(
-        "Ledger transport is not initialized. You must call setTransport first.",
+        "Ledger transport is not initialized. You must call setTransport first."
       );
     }
 
@@ -236,12 +230,12 @@ export default class LedgerKeyring {
 
   signPersonalMessage = async (address: string, message: string) => {
     const hdPath = this._getHDPathFromAddress(address);
-    const messageWithoutHexPrefix = stripHexPrefix(message);
+    const messageWithoutHexPrefix = ethUtil.stripHexPrefix(message);
 
     const app = this._getApp();
     const { r, s, v } = await app.signPersonalMessage(
       hdPath,
-      messageWithoutHexPrefix,
+      messageWithoutHexPrefix
     );
 
     let modifiedV = (v - 27).toString(16);
@@ -253,10 +247,13 @@ export default class LedgerKeyring {
     const signature = `0x${r}${s}${modifiedV}`;
     const addressSignedWith = recoverPersonalSignature({
       data: message,
-      signature: signature,
+      sig: signature,
     });
 
-    if (toChecksumAddress(addressSignedWith) !== toChecksumAddress(address)) {
+    if (
+      ethUtil.toChecksumAddress(addressSignedWith) !==
+      ethUtil.toChecksumAddress(address)
+    ) {
       throw new Error("Ledger: The signature doesn't match the right address");
     }
 
@@ -266,44 +263,40 @@ export default class LedgerKeyring {
   signTypedData = async (
     address: string,
     data: string,
-    { version }: { version: string },
+    { version }: { version: string }
   ) => {
     const app = this._getApp();
 
     const isV4 = version === "V4";
     if (!isV4) {
       throw new Error(
-        "Ledger: Only version 4 of typed data signing is supported",
+        "Ledger: Only version 4 of typed data signing is supported"
       );
     }
 
     const { domain, types, primaryType, message } = TypedDataUtils.sanitizeData(
-      JSON.parse(data) as TypedMessage<MessageTypes>,
+      JSON.parse(data) as TypedMessage<MessageTypes>
     );
-
-    const selectedVersion = version
-      ? SignTypedDataVersion.V3
-      : SignTypedDataVersion.V4;
 
     const domainSeparatorHex = TypedDataUtils.hashStruct(
       "EIP712Domain",
       domain,
       types,
-      selectedVersion,
+      true
     ).toString("hex");
 
     const hashStructMessageHex = TypedDataUtils.hashStruct(
       primaryType as string,
       message,
       types,
-      SignTypedDataVersion.V4,
+      true
     ).toString("hex");
 
     const hdPath = this._getHDPathFromAddress(address);
     const { r, s, v } = await app.signEIP712HashedMessage(
       hdPath,
       domainSeparatorHex,
-      hashStructMessageHex,
+      hashStructMessageHex
     );
 
     let modifiedV = (v - 27).toString(16);
@@ -314,12 +307,14 @@ export default class LedgerKeyring {
 
     const signature = `0x${r}${s}${modifiedV}`;
 
-    const addressSignedWith = recoverTypedSignature({
+    const addressSignedWith = recoverTypedSignature_v4({
       data: JSON.parse(data) as TypedMessage<MessageTypes>,
-      signature: signature,
-      version: SignTypedDataVersion.V4,
+      sig: signature,
     });
-    if (toChecksumAddress(addressSignedWith) !== toChecksumAddress(address)) {
+    if (
+      ethUtil.toChecksumAddress(addressSignedWith) !==
+      ethUtil.toChecksumAddress(address)
+    ) {
       throw new Error("Ledger: The signature doesnt match the right address");
     }
 
@@ -331,7 +326,7 @@ export default class LedgerKeyring {
     this.deviceId = "";
   };
 
-  setTransport = (transport: any, deviceId: string) => {
+  setTransport = (transport: Transport, deviceId: string) => {
     if (this.deviceId && this.deviceId !== deviceId) {
       throw new Error("LedgerKeyring: deviceId mismatch.");
     }
@@ -348,7 +343,7 @@ export default class LedgerKeyring {
   openEthApp = (): Promise<Buffer> => {
     if (!this.transport) {
       throw new Error(
-        "Ledger transport is not initialized. You must call setTransport first.",
+        "Ledger transport is not initialized. You must call setTransport first."
       );
     }
 
@@ -357,14 +352,14 @@ export default class LedgerKeyring {
       0xd8,
       0x00,
       0x00,
-      Buffer.from("Ethereum", "ascii"),
+      Buffer.from("Ethereum", "ascii")
     );
   };
 
   quitApp = (): Promise<Buffer> => {
     if (!this.transport) {
       throw new Error(
-        "Ledger transport is not initialized. You must call setTransport first.",
+        "Ledger transport is not initialized. You must call setTransport first."
       );
     }
 
@@ -374,7 +369,7 @@ export default class LedgerKeyring {
   private _getApp = (): EthereumApp => {
     if (!this.app) {
       throw new Error(
-        "Ledger app is not initialized. You must call setTransport first.",
+        "Ledger app is not initialized. You must call setTransport first."
       );
     }
 
