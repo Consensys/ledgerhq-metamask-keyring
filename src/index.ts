@@ -7,10 +7,11 @@ import { TransactionFactory, TypedTransaction } from "@ethereumjs/tx";
 import {
   MessageTypes,
   recoverPersonalSignature,
-  recoverTypedSignature_v4,
+  recoverTypedSignature,
   TypedDataUtils,
   TypedMessage,
-} from "eth-sig-util";
+  SignTypedDataVersion,
+} from "@metamask/eth-sig-util";
 
 // eslint-disable-next-line
 import { Buffer } from "buffer";
@@ -247,7 +248,7 @@ export default class LedgerKeyring {
     const signature = `0x${r}${s}${modifiedV}`;
     const addressSignedWith = recoverPersonalSignature({
       data: message,
-      sig: signature,
+      signature: signature,
     });
 
     if (
@@ -282,14 +283,14 @@ export default class LedgerKeyring {
       "EIP712Domain",
       domain,
       types,
-      true
+      SignTypedDataVersion.V4
     ).toString("hex");
 
     const hashStructMessageHex = TypedDataUtils.hashStruct(
       primaryType as string,
       message,
       types,
-      true
+      SignTypedDataVersion.V4
     ).toString("hex");
 
     const hdPath = this._getHDPathFromAddress(address);
@@ -307,9 +308,10 @@ export default class LedgerKeyring {
 
     const signature = `0x${r}${s}${modifiedV}`;
 
-    const addressSignedWith = recoverTypedSignature_v4({
+    const addressSignedWith = recoverTypedSignature({
       data: JSON.parse(data) as TypedMessage<MessageTypes>,
-      sig: signature,
+      signature: signature,
+      version: SignTypedDataVersion.V4,
     });
     if (
       ethUtil.toChecksumAddress(addressSignedWith) !==
