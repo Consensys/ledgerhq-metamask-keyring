@@ -248,7 +248,7 @@ export default class LedgerKeyring {
     const signature = `0x${r}${s}${modifiedV}`;
     const addressSignedWith = recoverPersonalSignature({
       data: message,
-      signature: signature
+      signature: signature,
     });
 
     if (
@@ -311,7 +311,7 @@ export default class LedgerKeyring {
     const addressSignedWith = recoverTypedSignature({
       data: JSON.parse(data) as TypedMessage<MessageTypes>,
       signature: signature,
-      version: SignTypedDataVersion.V4
+      version: SignTypedDataVersion.V4,
     });
     if (
       ethUtil.toChecksumAddress(addressSignedWith) !==
