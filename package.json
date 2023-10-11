@@ -19,6 +19,7 @@
     "test": "jest"
   },
   "devDependencies": {
+    "@ledgerhq/hw-transport": "^6.24.1",
     "@types/jest": "^27.4.1",
     "@typescript-eslint/eslint-plugin": "^5.15.0",
     "@typescript-eslint/parser": "^5.15.0",
@@ -34,8 +35,7 @@
     "prettier": "^2.6.0",
     "ts-jest": "^27.1.3",
     "ts-node": "^10.7.0",
-    "typescript": "^4.6.2",
-    "@ledgerhq/hw-transport": "^6.24.1"
+    "typescript": "^4.6.2"
   },
   "lint-staged": {
     "*.ts": "yarn run lint:fix"
@@ -43,8 +43,8 @@
   "dependencies": {
     "@ethereumjs/tx": "^3.5.0",
     "@ledgerhq/hw-app-eth": "6.26.1",
+    "@metamask/eth-sig-util": "^7.0.0",
     "buffer": "^6.0.3",
-    "eth-sig-util": "^3.0.1",
     "ethereumjs-util": "^7.1.5"
   }
 }
