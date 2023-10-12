@@ -1,5 +1,10 @@
 name: Publish Package to npmjs
 on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "The branch to build"
+        required: true
   release:
     types: [published]
 jobs:
@@ -10,11 +15,11 @@ jobs:
       # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v3
         with:
-          node-version: '16.x'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
           # Defaults to the user or organization that owns the workflow file
-          scope: '@octocat'
+          scope: "@consensys"
       - run: yarn
-      - run: yarn npm publish // for Yarn version 1, use `yarn publish` instead
+      - run: yarn npm publish --public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
