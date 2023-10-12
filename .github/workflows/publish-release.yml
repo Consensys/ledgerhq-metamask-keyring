@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "The version to publish, like 0.0.1"
+        description: "The version to publish, like 0.0.1-preview.1"
         required: true
   release:
     types: [published]
@@ -21,6 +21,10 @@ jobs:
           registry-url: "https://registry.npmjs.org"
           # Defaults to the user or organization that owns the workflow file
           scope: "@consensys"
+      - name: Git configuration
+        run: |
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "ConsenSys GitHub Action"
       - run: yarn
         name: install dependencies
       - name: publish to NPM
