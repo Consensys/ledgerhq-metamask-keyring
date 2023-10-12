@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "The version to publish, please defined it with .preview.1 or .rc suffix if for development purpose"
+        description: "The version to publish, like 0.0.1"
         required: true
   release:
     types: [published]
@@ -22,9 +22,12 @@ jobs:
           # Defaults to the user or organization that owns the workflow file
           scope: "@consensys"
       - run: yarn
-      - run: |
+        name: install dependencies
+      - name: publish to NPM
+        run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             echo "Triggered by manual workflow_dispatch event, this will publish preview version for testing purpose"
+            echo "Publishing preview version ${{ github.event.inputs.version }}"
             yarn publish --access public --new-version ${{ github.event.inputs.version }} --tag preview
           else
             echo "This is proper release, will publish stable version"
