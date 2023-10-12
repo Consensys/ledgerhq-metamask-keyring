@@ -1,6 +1,10 @@
 name: Publish Package to npmjs
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: "The version to publish, please defined it with .preview.1 or .rc suffix if for development purpose"
+        required: true
   release:
     types: [published]
 jobs:
@@ -16,6 +20,13 @@ jobs:
           # Defaults to the user or organization that owns the workflow file
           scope: "@consensys"
       - run: yarn
-      - run: yarn publish --access public
+      - run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "Triggered by manual workflow_dispatch event, this will publish preview version for testing purpose"
+            yarn publish --access public --new-version ${{ github.event.inputs.version }} --tag preview
+          else
+            echo "This is proper release, will publish stable version"
+            yarn publish --access public --tag stable
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
