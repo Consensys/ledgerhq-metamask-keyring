@@ -1,10 +1,6 @@
 name: Publish Package to npmjs
 on:
   workflow_dispatch:
-    inputs:
-      branch:
-        description: "The branch to build"
-        required: true
   release:
     types: [published]
 jobs:
@@ -20,6 +16,6 @@ jobs:
           # Defaults to the user or organization that owns the workflow file
           scope: "@consensys"
       - run: yarn
-      - run: yarn npm publish --public
+      - run: yarn publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
