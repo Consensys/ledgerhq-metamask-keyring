@@ -1,8 +1,13 @@
-name: Publish Package to npmjs
+name: Publish to NPM
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: "The version to publish, like 0.0.1-preview.1"
+        required: true
   release:
     types: [published]
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -10,12 +15,27 @@ jobs:
       - uses: actions/checkout@v4
       # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v3
+        name: Setup Node.js with version ${{ vars.NODE_VERSION }}
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: ${{ vars.NODE_VERSION }}
           registry-url: "https://registry.npmjs.org"
           # Defaults to the user or organization that owns the workflow file
           scope: "@consensys"
+      - name: Git configuration
+        run: |
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "ConsenSys GitHub Action"
       - run: yarn
-      - run: yarn publish --access public
+        name: install dependencies
+      - name: publish to NPM
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "Triggered by manual workflow_dispatch event, this will publish preview version for testing purpose"
+            echo "Publishing preview version ${{ github.event.inputs.version }}"
+            yarn publish --access public --new-version ${{ github.event.inputs.version }} --tag preview
+          else
+            echo "This is proper release, will publish stable version"
+            yarn publish --access public --tag stable
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

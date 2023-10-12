@@ -5,14 +5,15 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           repository: ${{github.event.pull_request.head.repo.full_name}}
-      - uses: actions/setup-node@main
+      - uses: actions/setup-node@v3
+        name: Setup node with version ${{ vars.NODE_VERSION }}
         with:
-          node-version: ${{ env.NODE_VERSION }}
-      - uses: actions/cache@v2
+          node-version: ${{ vars.NODE_VERSION }}
+      - uses: actions/cache@v3
         id: cache
         with:
           path: "**/node_modules"
@@ -25,14 +26,15 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           repository: ${{github.event.pull_request.head.repo.full_name}}
-      - uses: actions/setup-node@main
+      - uses: actions/setup-node@v3
+        name: Setup node with version ${{ vars.NODE_VERSION }}
         with:
-          node-version: ${{ env.NODE_VERSION }}
-      - uses: actions/cache@v2
+          node-version: ${{ vars.NODE_VERSION }}
+      - uses: actions/cache@v3
         with:
           path: "**/node_modules"
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
@@ -45,14 +47,15 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           repository: ${{github.event.pull_request.head.repo.full_name}}
-      - uses: actions/setup-node@main
+      - uses: actions/setup-node@v3
+        name: Setup node with version ${{ vars.NODE_VERSION }}
         with:
-          node-version: ${{ env.NODE_VERSION }}
-      - uses: actions/cache@v2
+          node-version: ${{ vars.NODE_VERSION }}
+      - uses: actions/cache@v3
         with:
           path: "**/node_modules"
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
@@ -63,14 +66,15 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           repository: ${{github.event.pull_request.head.repo.full_name}}
-      - uses: actions/setup-node@main
+      - uses: actions/setup-node@v3
+        name: Setup node with version ${{ vars.NODE_VERSION }}
         with:
-          node-version: ${{ env.NODE_VERSION }}
-      - uses: actions/cache@v2
+          node-version: ${{ vars.NODE_VERSION }}
+      - uses: actions/cache@v3
         with:
           path: "**/node_modules"
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
