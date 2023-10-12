@@ -20,6 +20,6 @@ jobs:
           # Defaults to the user or organization that owns the workflow file
           scope: "@consensys"
       - run: yarn
-      - run: yarn npm publish --public
+      - run: yarn publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
