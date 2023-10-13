@@ -64,28 +64,44 @@ describe("serialization", () => {
       hdPath: "m/44'/60'/0'/0/0",
       accounts: [],
       deviceId: "",
+      accountDetails: {},
     });
   });
 
   test("successfully serializes state for provided values", async () => {
     const keyring = new LedgerKeyring({
       hdPath: "m/44'/60'/0'/0/0",
-      accounts: [
-        { address: "0x1", hdPath: "m/44'/60'/0'/0/0" },
-        { address: "0x2", hdPath: "m/44'/60'/1'/0/0" },
-      ],
+      accounts: ["0x1", "0x2"],
       deviceId: "device_1",
+      accountDetails: {
+        "0x1": {
+          bip44: true,
+          hdPath: "m/44'/60'/0'/0/0",
+        },
+        "0x2": {
+          bip44: true,
+          hdPath: "m/44'/60'/1'/0/0",
+        },
+      },
     });
+    // hdPath: "m/44'/60'/1'/0/0" }],
 
     const serialized = await keyring.serialize();
 
     expect(serialized).toEqual({
       hdPath: "m/44'/60'/0'/0/0",
-      accounts: [
-        { address: "0x1", hdPath: "m/44'/60'/0'/0/0" },
-        { address: "0x2", hdPath: "m/44'/60'/1'/0/0" },
-      ],
+      accounts: ["0x1", "0x2"],
       deviceId: "device_1",
+      accountDetails: {
+        "0x1": {
+          bip44: true,
+          hdPath: "m/44'/60'/0'/0/0",
+        },
+        "0x2": {
+          bip44: true,
+          hdPath: "m/44'/60'/1'/0/0",
+        },
+      },
     });
   });
 
@@ -94,22 +110,36 @@ describe("serialization", () => {
 
     await keyring.deserialize({
       hdPath: "m/44'/60'/0'/0/0",
-      accounts: [
-        { address: "0x1", hdPath: "m/44'/60'/0'/0/0" },
-        { address: "0x2", hdPath: "m/44'/60'/1'/0/0" },
-      ],
+      accounts: ["0x1", "0x2"],
       deviceId: "device_1",
+      accountDetails: {
+        "0x1": {
+          bip44: true,
+          hdPath: "m/44'/60'/0'/0/0",
+        },
+        "0x2": {
+          bip44: true,
+          hdPath: "m/44'/60'/1'/0/0",
+        },
+      },
     });
 
     const serialized = await keyring.serialize();
 
     expect(serialized).toEqual({
       hdPath: "m/44'/60'/0'/0/0",
-      accounts: [
-        { address: "0x1", hdPath: "m/44'/60'/0'/0/0" },
-        { address: "0x2", hdPath: "m/44'/60'/1'/0/0" },
-      ],
+      accounts: ["0x1", "0x2"],
       deviceId: "device_1",
+      accountDetails: {
+        "0x1": {
+          bip44: true,
+          hdPath: "m/44'/60'/0'/0/0",
+        },
+        "0x2": {
+          bip44: true,
+          hdPath: "m/44'/60'/1'/0/0",
+        },
+      },
     });
   });
 
@@ -124,6 +154,7 @@ describe("serialization", () => {
       hdPath: "m/44'/60'/0'/0/0",
       accounts: [],
       deviceId: "",
+      accountDetails: {},
     });
   });
 });
@@ -142,11 +173,18 @@ describe("accounts", () => {
 
     await keyring.deserialize({
       hdPath: "m/44'/60'/0'/0/0",
-      accounts: [
-        { address: "0x1", hdPath: "m/44'/60'/0'/0/0" },
-        { address: "0x2", hdPath: "m/44'/60'/1'/0/0" },
-      ],
+      accounts: ["0x1", "0x2"],
       deviceId: "device_1",
+      accountDetails: {
+        "0x1": {
+          bip44: true,
+          hdPath: "m/44'/60'/0'/0/0",
+        },
+        "0x2": {
+          bip44: true,
+          hdPath: "m/44'/60'/1'/0/0",
+        },
+      },
     });
 
     const accounts = await keyring.getAccounts();
@@ -292,14 +330,16 @@ describe("signTransaction", () => {
 
     await keyring.deserialize({
       hdPath: "m/44'/60'/0'/0/0",
-      accounts: [
-        {
-          address: "0xCbA98362e199c41E1864D0923AF9646d3A648451",
+      accounts: ["0xCbA98362e199c41E1864D0923AF9646d3A648451"],
+      deviceId: "device_1",
+      accountDetails: {
+        "0xCbA98362e199c41E1864D0923AF9646d3A648451": {
+          bip44: true,
           hdPath: "m/44'/60'/0'/0/0",
         },
-      ],
-      deviceId: "device_1",
+      },
     });
+    //          hdPath: "m/44'/60'/0'/0/0",
 
     keyring.setApp(mockApp);
 
@@ -342,7 +382,7 @@ describe("signMessage", () => {
     const mockApp = createMockApp({
       getAddress: jest.fn(() =>
         Promise.resolve({
-          address: "0x9e10effa844d7399cdc555613b23a8499e04e386",
+          address: "0x9E10EFFa844D7399cdc555613B23a8499e04E386",
           publicKey:
             "04df00ad3869baad7ce54f4d560ba7f268d542df8f2679a5898d78a690c3db8f9833d2973671cb14b088e91bdf7c0ab00029a576473c0e12f84d252e630bb3809b",
         })
@@ -358,19 +398,20 @@ describe("signMessage", () => {
 
     await keyring.deserialize({
       hdPath: "m/44'/60'/0'/0/0",
-      accounts: [
-        {
-          address: "0x9e10effa844d7399cdc555613b23a8499e04e386",
+      accounts: ["0x9E10EFFa844D7399cdc555613B23a8499e04E386"],
+      deviceId: "device_1",
+      accountDetails: {
+        "0x9E10EFFa844D7399cdc555613B23a8499e04E386": {
+          bip44: true,
           hdPath: "m/44'/60'/0'/0/0",
         },
-      ],
-      deviceId: "device_1",
+      },
     });
 
     keyring.setApp(mockApp);
 
     const signature = await keyring.signPersonalMessage(
-      "0x9e10effa844d7399cdc555613b23a8499e04e386",
+      "0x9E10EFFa844D7399cdc555613B23a8499e04E386",
       Buffer.from("Sign Personal Message Test").toString("hex")
     );
 
@@ -386,7 +427,7 @@ describe("signTypedData", () => {
     const mockApp = createMockApp({
       getAddress: jest.fn(() =>
         Promise.resolve({
-          address: "0xe908e4378431418759b4f87b4bf7966e8aaa5cf2",
+          address: "0xE908e4378431418759b4F87b4bf7966e8aAa5Cf2",
           publicKey:
             "04df00ad3869baad7ce54f4d560ba7f268d542df8f2679a5898d78a690c3db8f9833d2973671cb14b088e91bdf7c0ab00029a576473c0e12f84d252e630bb3809b",
         })
@@ -402,19 +443,20 @@ describe("signTypedData", () => {
 
     await keyring.deserialize({
       hdPath: "m/44'/60'/0'/0/0",
-      accounts: [
-        {
-          address: "0xe908e4378431418759b4f87b4bf7966e8aaa5cf2",
+      accounts: ["0xE908e4378431418759b4F87b4bf7966e8aAa5Cf2"],
+      deviceId: "device_1",
+      accountDetails: {
+        "0xE908e4378431418759b4F87b4bf7966e8aAa5Cf2": {
+          bip44: true,
           hdPath: "m/44'/60'/0'/0/0",
         },
-      ],
-      deviceId: "device_1",
+      },
     });
 
     keyring.setApp(mockApp);
 
     const signature = await keyring.signTypedData(
-      "0xe908e4378431418759b4f87b4bf7966e8aaa5cf2",
+      "0xE908e4378431418759b4F87b4bf7966e8aAa5Cf2",
       JSON.stringify({
         domain: {
           chainId: 1,
@@ -481,11 +523,18 @@ describe("forgetDevice", () => {
 
     await keyring.deserialize({
       hdPath: "m/44'/60'/0'/0/0",
-      accounts: [
-        { address: "0x1", hdPath: "m/44'/60'/0'/0/0" },
-        { address: "0x2", hdPath: "m/44'/60'/1'/0/0" },
-      ],
+      accounts: ["0x1", "0x2"],
       deviceId: "device_1",
+      accountDetails: {
+        "0x1": {
+          bip44: true,
+          hdPath: "m/44'/60'/0'/0/0",
+        },
+        "0x2": {
+          bip44: true,
+          hdPath: "m/44'/60'/1'/0/0",
+        },
+      },
     });
 
     keyring.forgetDevice();

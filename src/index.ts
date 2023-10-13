@@ -19,16 +19,18 @@ import { Buffer } from "buffer";
 const hdPathString = `m/44'/60'/0'/0/0`;
 const type = "Ledger Hardware";
 
-type SerializationOptions = {
+export type AccountDetails = {
+  bip44?: boolean;
   hdPath?: string;
-  accounts?: Account[];
-  deviceId?: string;
 };
 
-type Account = {
-  address: string;
-  hdPath: string;
+export type SerializationOptions = {
+  hdPath?: string;
+  accounts?: string[];
+  deviceId?: string;
+  accountDetails?: Record<string, AccountDetails>;
 };
+
 export interface EthereumApp {
   getAddress(
     path: string,
@@ -76,7 +78,7 @@ export default class LedgerKeyring {
 
   public deviceId = "";
 
-  public accounts: Account[] = [];
+  public accounts: string[] = [];
 
   private name: string;
 
@@ -85,6 +87,8 @@ export default class LedgerKeyring {
   private app?: EthereumApp;
 
   private transport?: Transport;
+
+  private accountDetails: Record<string, AccountDetails> = {};
 
   constructor(opts: SerializationOptions = {}) {
     this.name = "Ledger";
@@ -99,6 +103,7 @@ export default class LedgerKeyring {
     hdPath: this.hdPath,
     accounts: this.accounts,
     deviceId: this.deviceId,
+    accountDetails: this.accountDetails,
   });
 
   // eslint-disable-next-line @typescript-eslint/require-await
@@ -106,16 +111,17 @@ export default class LedgerKeyring {
     this.hdPath = opts.hdPath || hdPathString;
     this.accounts = opts.accounts || [];
     this.deviceId = opts.deviceId || "";
+    this.accountDetails = opts.accountDetails || {};
   };
 
   // eslint-disable-next-line @typescript-eslint/require-await
   getAccounts = async (): Promise<string[]> => {
-    const addresses = this.accounts.map(({ address }) => address);
-    return addresses;
+    return this.accounts.slice();
   };
 
   managesAccount = async (address: string): Promise<boolean> => {
     const accounts = await this.getAccounts();
+
     return accounts.some(
       (managedAddress) =>
         managedAddress.toLocaleLowerCase() === address.toLocaleLowerCase()
@@ -142,10 +148,12 @@ export default class LedgerKeyring {
       return this.getAccounts();
     }
 
-    this.accounts.push({
-      address,
+    const checksummedAddress = ethUtil.toChecksumAddress(address);
+    this.accounts.push(address);
+    this.accountDetails[checksummedAddress] = {
+      bip44: true,
       hdPath: this.hdPath,
-    });
+    };
 
     return this.getAccounts();
   };
@@ -325,6 +333,7 @@ export default class LedgerKeyring {
 
   forgetDevice = () => {
     this.accounts = [];
+    this.accountDetails = {};
     this.deviceId = "";
   };
 
@@ -379,14 +388,20 @@ export default class LedgerKeyring {
   };
 
   private _getHDPathFromAddress = (address: string): string => {
-    const account = this.accounts.find(({ address: accAddress }) => {
-      return accAddress.toLowerCase() === address.toLowerCase();
-    });
+    const checksummedAddress = ethUtil.toChecksumAddress(address);
 
-    if (!account) {
-      throw new Error(`Account not found for address: ${address}`);
+    // Check if the accountDetails object has the given address
+    if (!this.accountDetails.hasOwnProperty(checksummedAddress)) {
+      throw new Error(`Account details not found for address: ${address}`);
     }
 
-    return account.hdPath;
+    const details = this.accountDetails[checksummedAddress];
+
+    // Check if hdPath exists in the details for the given address
+    if (!details.hdPath) {
+      throw new Error(`HD Path not found for address: ${address}`);
+    }
+
+    return details.hdPath;
   };
 }
