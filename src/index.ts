@@ -24,7 +24,7 @@ type AccountDetails = {
   hdPath?: string;
 };
 
-type SerializationOptions = {
+export type SerializationOptions = {
   hdPath?: string;
   accounts?: string[];
   deviceId?: string;
