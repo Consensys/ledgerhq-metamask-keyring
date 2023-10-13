@@ -1,6 +1,6 @@
 {
   "name": "@consensys/ledgerhq-metamask-keyring",
-  "version": "0.0.3-preview.1",
+  "version": "0.0.4",
   "description": "A Metamask keyring implementation to bridge wallet operatations with Ledger Nano devices.",
   "repository": "git@github.com:Consensys/ledgerhq-metamask-keyring.git",
   "license": "Apache-2.0",
