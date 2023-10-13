@@ -19,7 +19,7 @@ import { Buffer } from "buffer";
 const hdPathString = `m/44'/60'/0'/0/0`;
 const type = "Ledger Hardware";
 
-type AccountDetails = {
+export type AccountDetails = {
   bip44?: boolean;
   hdPath?: string;
 };
