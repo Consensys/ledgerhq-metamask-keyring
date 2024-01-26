@@ -457,7 +457,7 @@ describe("signTypedData", () => {
 
     const signature = await keyring.signTypedData(
       "0xE908e4378431418759b4F87b4bf7966e8aAa5Cf2",
-      JSON.stringify({
+      {
         domain: {
           chainId: 1,
           name: "Ether Mail",
@@ -507,7 +507,7 @@ describe("signTypedData", () => {
             { name: "wallets", type: "address[]" },
           ],
         },
-      }),
+      },
       { version: "V4" }
     );
 

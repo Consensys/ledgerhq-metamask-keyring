@@ -271,7 +271,7 @@ export default class LedgerKeyring {
 
   signTypedData = async (
     address: string,
-    data: string,
+    data: TypedMessage<MessageTypes>,
     { version }: { version: string }
   ) => {
     const app = this._getApp();
@@ -283,9 +283,8 @@ export default class LedgerKeyring {
       );
     }
 
-    const { domain, types, primaryType, message } = TypedDataUtils.sanitizeData(
-      JSON.parse(data) as TypedMessage<MessageTypes>
-    );
+    const { domain, types, primaryType, message } =
+      TypedDataUtils.sanitizeData(data);
 
     const domainSeparatorHex = TypedDataUtils.hashStruct(
       "EIP712Domain",
@@ -317,7 +316,7 @@ export default class LedgerKeyring {
     const signature = `0x${r}${s}${modifiedV}`;
 
     const addressSignedWith = recoverTypedSignature({
-      data: JSON.parse(data) as TypedMessage<MessageTypes>,
+      data: data,
       signature: signature,
       version: SignTypedDataVersion.V4,
     });
