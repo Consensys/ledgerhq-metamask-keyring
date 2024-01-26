@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "@ethereumjs/tx": "^3.5.0",
-    "@ledgerhq/hw-app-eth": "6.26.1",
+    "@ledgerhq/hw-app-eth": "6.35.3",
     "@metamask/eth-sig-util": "^7.0.0",
     "buffer": "^6.0.3",
     "ethereumjs-util": "^7.1.5"
