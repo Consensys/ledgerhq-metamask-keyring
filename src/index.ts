@@ -247,7 +247,7 @@ export default class LedgerKeyring {
       messageWithoutHexPrefix
     );
 
-    let modifiedV = (v - 27).toString(16);
+    let modifiedV = parseInt(String(v), 10).toString(16);
 
     if (modifiedV.length < 2) {
       modifiedV = `0${modifiedV}`;
@@ -307,7 +307,7 @@ export default class LedgerKeyring {
       hashStructMessageHex
     );
 
-    let modifiedV = (v - 27).toString(16);
+    let modifiedV = parseInt(String(v), 10).toString(16);
 
     if (modifiedV.length < 2) {
       modifiedV = `0${modifiedV}`;
