@@ -363,15 +363,17 @@ describe("signTransaction", () => {
       tx
     );
 
-    expect({
-      v: signedTx.v?.toString("hex"),
-      r: signedTx.r?.toString("hex"),
-      s: signedTx.s?.toString("hex"),
-    }).toEqual({
-      v: "1",
-      r: "afb6e247b1c490e284053c87ab5f6b59e219d51f743f7a4d83e400782bc7e4b9",
-      s: "479a268e0e0acd4de3f1e28e4fac2a6b32a4195e8dfa9d19147abe8807aa6f64",
-    });
+    const modifiedV = parseInt(String(signedTx.v), 10).toString(16);
+    const modifiedR = BigInt(String(signedTx.r)).toString(16);
+    const modifiedS = BigInt(String(signedTx.s)).toString(16);
+
+    expect(modifiedV).toEqual("1");
+    expect(modifiedR).toEqual(
+      "afb6e247b1c490e284053c87ab5f6b59e219d51f743f7a4d83e400782bc7e4b9"
+    );
+    expect(modifiedS).toEqual(
+      "479a268e0e0acd4de3f1e28e4fac2a6b32a4195e8dfa9d19147abe8807aa6f64"
+    );
   });
 });
 
