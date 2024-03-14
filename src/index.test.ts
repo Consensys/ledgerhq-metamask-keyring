@@ -363,9 +363,9 @@ describe("signTransaction", () => {
       tx
     );
 
-    let modifiedV = parseInt(String(signedTx.v), 10).toString(16);
-    let modifiedR = BigInt(String(signedTx.r)).toString(16);
-    let modifiedS = BigInt(String(signedTx.s)).toString(16);
+    const modifiedV = parseInt(String(signedTx.v), 10).toString(16);
+    const modifiedR = BigInt(String(signedTx.r)).toString(16);
+    const modifiedS = BigInt(String(signedTx.s)).toString(16);
 
     expect(modifiedV).toEqual("1");
     expect(modifiedR).toEqual(
