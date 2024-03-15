@@ -1,4 +1,4 @@
-import AppEth from "@ledgerhq/hw-app-eth";
+import Eth from "@ledgerhq/hw-app-eth";
 import type Transport from "@ledgerhq/hw-transport";
 import ledgerService from "@ledgerhq/hw-app-eth/lib/services/ledger";
 import { LedgerEthTransactionResolution } from "@ledgerhq/hw-app-eth/lib/services/types";
@@ -343,7 +343,7 @@ export default class LedgerKeyring {
 
     this.deviceId = deviceId;
     this.transport = transport;
-    this.app = new AppEth(transport);
+    this.app = new Eth(transport);
   };
 
   setApp = (app: EthereumApp): void => {
