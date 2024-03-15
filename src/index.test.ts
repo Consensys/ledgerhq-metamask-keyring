@@ -1,6 +1,6 @@
-import Transport from "@ledgerhq/hw-transport";
 import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
 import LedgerKeyring, { EthereumApp } from "./index";
+import Transport from "@ledgerhq/hw-transport";
 
 jest.mock("@ledgerhq/hw-app-eth/lib/services/ledger", () => ({
   resolveTransaction: () =>

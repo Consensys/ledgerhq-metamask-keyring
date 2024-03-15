@@ -35,7 +35,7 @@ export interface EthereumApp {
   getAddress(
     path: string,
     boolDisplay?: boolean,
-    boolChaincode?: boolean
+    boolChaincode?: boolean,
   ): Promise<{
     publicKey: string;
     address: string;
@@ -45,7 +45,7 @@ export interface EthereumApp {
   signTransaction(
     path: string,
     rawTxHex: string,
-    resolution?: LedgerEthTransactionResolution | null
+    resolution?: LedgerEthTransactionResolution | null,
   ): Promise<{
     s: string;
     v: string;
@@ -54,7 +54,7 @@ export interface EthereumApp {
 
   signPersonalMessage(
     path: string,
-    messageHex: string
+    messageHex: string,
   ): Promise<{
     v: number;
     s: string;
@@ -64,7 +64,7 @@ export interface EthereumApp {
   signEIP712HashedMessage(
     path: string,
     domainSeparatorHex: string,
-    hashStructMessageHex: string
+    hashStructMessageHex: string,
   ): Promise<{
     v: number;
     s: string;
@@ -124,7 +124,7 @@ export default class LedgerKeyring {
 
     return accounts.some(
       (managedAddress) =>
-        managedAddress.toLocaleLowerCase() === address.toLocaleLowerCase()
+        managedAddress.toLocaleLowerCase() === address.toLocaleLowerCase(),
     );
   };
 
@@ -210,7 +210,7 @@ export default class LedgerKeyring {
   }> => {
     if (!this.transport) {
       throw new Error(
-        "Ledger transport is not initialized. You must call setTransport first."
+        "Ledger transport is not initialized. You must call setTransport first.",
       );
     }
 
@@ -244,7 +244,7 @@ export default class LedgerKeyring {
     const app = this._getApp();
     const { r, s, v } = await app.signPersonalMessage(
       hdPath,
-      messageWithoutHexPrefix
+      messageWithoutHexPrefix,
     );
 
     let modifiedV = parseInt(String(v), 10).toString(16);
@@ -272,14 +272,14 @@ export default class LedgerKeyring {
   signTypedData = async (
     address: string,
     data: TypedMessage<MessageTypes>,
-    { version }: { version: string }
+    { version }: { version: string },
   ) => {
     const app = this._getApp();
 
     const isV4 = version === "V4";
     if (!isV4) {
       throw new Error(
-        "Ledger: Only version 4 of typed data signing is supported"
+        "Ledger: Only version 4 of typed data signing is supported",
       );
     }
 
@@ -290,21 +290,21 @@ export default class LedgerKeyring {
       "EIP712Domain",
       domain,
       types,
-      SignTypedDataVersion.V4
+      SignTypedDataVersion.V4,
     ).toString("hex");
 
     const hashStructMessageHex = TypedDataUtils.hashStruct(
       primaryType as string,
       message,
       types,
-      SignTypedDataVersion.V4
+      SignTypedDataVersion.V4,
     ).toString("hex");
 
     const hdPath = this._getHDPathFromAddress(address);
     const { r, s, v } = await app.signEIP712HashedMessage(
       hdPath,
       domainSeparatorHex,
-      hashStructMessageHex
+      hashStructMessageHex,
     );
 
     let modifiedV = parseInt(String(v), 10).toString(16);
@@ -353,7 +353,7 @@ export default class LedgerKeyring {
   openEthApp = (): Promise<Buffer> => {
     if (!this.transport) {
       throw new Error(
-        "Ledger transport is not initialized. You must call setTransport first."
+        "Ledger transport is not initialized. You must call setTransport first.",
       );
     }
 
@@ -362,14 +362,14 @@ export default class LedgerKeyring {
       0xd8,
       0x00,
       0x00,
-      Buffer.from("Ethereum", "ascii")
+      Buffer.from("Ethereum", "ascii"),
     );
   };
 
   quitApp = (): Promise<Buffer> => {
     if (!this.transport) {
       throw new Error(
-        "Ledger transport is not initialized. You must call setTransport first."
+        "Ledger transport is not initialized. You must call setTransport first.",
       );
     }
 
@@ -379,7 +379,7 @@ export default class LedgerKeyring {
   private _getApp = (): EthereumApp => {
     if (!this.app) {
       throw new Error(
-        "Ledger app is not initialized. You must call setTransport first."
+        "Ledger app is not initialized. You must call setTransport first.",
       );
     }
 
