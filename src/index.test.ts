@@ -1,6 +1,6 @@
-import Transport from "@ledgerhq/hw-transport";
 import { FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
 import LedgerKeyring, { EthereumApp } from "./index";
+import Transport from "@ledgerhq/hw-transport";
 
 jest.mock("@ledgerhq/hw-app-eth/lib/services/ledger", () => ({
   resolveTransaction: () =>
@@ -19,28 +19,28 @@ const createMockApp = (props: Partial<EthereumApp>): EthereumApp => {
         address: "0xCbA98362e199c41E1864D0923AF9646d3A648451",
         publicKey:
           "04df00ad3869baad7ce54f4d560ba7f268d542df8f2679a5898d78a690c3db8f9833d2973671cb14b088e91bdf7c0ab00029a576473c0e12f84d252e630bb3809b",
-      })
+      }),
     ),
     signTransaction: jest.fn(() =>
       Promise.resolve({
         s: "0x1",
         v: "0x2",
         r: "0x3",
-      })
+      }),
     ),
     signPersonalMessage: jest.fn(() =>
       Promise.resolve({
         s: "0x1",
         v: 2,
         r: "0x3",
-      })
+      }),
     ),
     signEIP712HashedMessage: jest.fn(() =>
       Promise.resolve({
         s: "0x1",
         v: 2,
         r: "0x3",
-      })
+      }),
     ),
     ...props,
   };
@@ -201,7 +201,7 @@ describe("accounts", () => {
           address: "0xCbA98362e199c41E1864D0923AF9646d3A648451",
           publicKey:
             "04df00ad3869baad7ce54f4d560ba7f268d542df8f2679a5898d78a690c3db8f9833d2973671cb14b088e91bdf7c0ab00029a576473c0e12f84d252e630bb3809b",
-        })
+        }),
       ),
     });
 
@@ -222,14 +222,14 @@ describe("accounts", () => {
           address: "0xCbA98362e199c41E1864D0923AF9646d3A648451",
           publicKey:
             "04df00ad3869baad7ce54f4d560ba7f268d542df8f2679a5898d78a690c3db8f9833d2973671cb14b088e91bdf7c0ab00029a576473c0e12f84d252e630bb3809b",
-        })
+        }),
       ),
     });
 
     keyring.setApp(mockApp);
 
     await expect(keyring.addAccounts(2)).rejects.toThrow(
-      "LedgerKeyring only supports one account"
+      "LedgerKeyring only supports one account",
     );
   });
 
@@ -242,7 +242,7 @@ describe("accounts", () => {
           address: "0xCbA98362e199c41E1864D0923AF9646d3A648451",
           publicKey:
             "04df00ad3869baad7ce54f4d560ba7f268d542df8f2679a5898d78a690c3db8f9833d2973671cb14b088e91bdf7c0ab00029a576473c0e12f84d252e630bb3809b",
-        })
+        }),
       ),
     });
 
@@ -265,7 +265,7 @@ describe("accounts", () => {
           address: "0xCbA98362e199c41E1864D0923AF9646d3A648451",
           publicKey:
             "04df00ad3869baad7ce54f4d560ba7f268d542df8f2679a5898d78a690c3db8f9833d2973671cb14b088e91bdf7c0ab00029a576473c0e12f84d252e630bb3809b",
-        })
+        }),
       ),
     });
 
@@ -287,7 +287,7 @@ describe("unlock", () => {
           address: "0xCbA98362e199c41E1864D0923AF9646d3A648451",
           publicKey:
             "04df00ad3869baad7ce54f4d560ba7f268d542df8f2679a5898d78a690c3db8f9833d2973671cb14b088e91bdf7c0ab00029a576473c0e12f84d252e630bb3809b",
-        })
+        }),
       ),
     });
 
@@ -302,7 +302,7 @@ describe("unlock", () => {
     const keyring = new LedgerKeyring();
 
     await expect(keyring.unlock("m/44'/60'/0'/0/0")).rejects.toThrow(
-      "Ledger app is not initialized. You must call setTransport first."
+      "Ledger app is not initialized. You must call setTransport first.",
     );
   });
 });
@@ -317,14 +317,14 @@ describe("signTransaction", () => {
           address: "0xCbA98362e199c41E1864D0923AF9646d3A648451",
           publicKey:
             "04df00ad3869baad7ce54f4d560ba7f268d542df8f2679a5898d78a690c3db8f9833d2973671cb14b088e91bdf7c0ab00029a576473c0e12f84d252e630bb3809b",
-        })
+        }),
       ),
       signTransaction: jest.fn(() =>
         Promise.resolve({
           v: "0x01",
           r: "0xafb6e247b1c490e284053c87ab5f6b59e219d51f743f7a4d83e400782bc7e4b9",
           s: "0x479a268e0e0acd4de3f1e28e4fac2a6b32a4195e8dfa9d19147abe8807aa6f64",
-        })
+        }),
       ),
     });
 
@@ -360,18 +360,20 @@ describe("signTransaction", () => {
 
     const signedTx = await keyring.signTransaction(
       "0xCbA98362e199c41E1864D0923AF9646d3A648451",
-      tx
+      tx,
     );
 
-    expect({
-      v: signedTx.v?.toString("hex"),
-      r: signedTx.r?.toString("hex"),
-      s: signedTx.s?.toString("hex"),
-    }).toEqual({
-      v: "1",
-      r: "afb6e247b1c490e284053c87ab5f6b59e219d51f743f7a4d83e400782bc7e4b9",
-      s: "479a268e0e0acd4de3f1e28e4fac2a6b32a4195e8dfa9d19147abe8807aa6f64",
-    });
+    const modifiedV = parseInt(String(signedTx.v), 10).toString(16);
+    const modifiedR = BigInt(String(signedTx.r)).toString(16);
+    const modifiedS = BigInt(String(signedTx.s)).toString(16);
+
+    expect(modifiedV).toEqual("1");
+    expect(modifiedR).toEqual(
+      "afb6e247b1c490e284053c87ab5f6b59e219d51f743f7a4d83e400782bc7e4b9",
+    );
+    expect(modifiedS).toEqual(
+      "479a268e0e0acd4de3f1e28e4fac2a6b32a4195e8dfa9d19147abe8807aa6f64",
+    );
   });
 });
 
@@ -385,14 +387,14 @@ describe("signMessage", () => {
           address: "0x9E10EFFa844D7399cdc555613B23a8499e04E386",
           publicKey:
             "04df00ad3869baad7ce54f4d560ba7f268d542df8f2679a5898d78a690c3db8f9833d2973671cb14b088e91bdf7c0ab00029a576473c0e12f84d252e630bb3809b",
-        })
+        }),
       ),
       signPersonalMessage: jest.fn(() =>
         Promise.resolve({
           v: 27,
           r: "afb6e247b1c490e284053c87ab5f6b59e219d51f743f7a4d83e400782bc7e4b9",
           s: "479a268e0e0acd4de3f1e28e4fac2a6b32a4195e8dfa9d19147abe8807aa6f64",
-        })
+        }),
       ),
     });
 
@@ -412,11 +414,11 @@ describe("signMessage", () => {
 
     const signature = await keyring.signPersonalMessage(
       "0x9E10EFFa844D7399cdc555613B23a8499e04E386",
-      Buffer.from("Sign Personal Message Test").toString("hex")
+      Buffer.from("Sign Personal Message Test").toString("hex"),
     );
 
     expect(signature).toEqual(
-      "0xafb6e247b1c490e284053c87ab5f6b59e219d51f743f7a4d83e400782bc7e4b9479a268e0e0acd4de3f1e28e4fac2a6b32a4195e8dfa9d19147abe8807aa6f641b"
+      "0xafb6e247b1c490e284053c87ab5f6b59e219d51f743f7a4d83e400782bc7e4b9479a268e0e0acd4de3f1e28e4fac2a6b32a4195e8dfa9d19147abe8807aa6f641b",
     );
   });
 });
@@ -430,14 +432,14 @@ describe("signTypedData", () => {
           address: "0xE908e4378431418759b4F87b4bf7966e8aAa5Cf2",
           publicKey:
             "04df00ad3869baad7ce54f4d560ba7f268d542df8f2679a5898d78a690c3db8f9833d2973671cb14b088e91bdf7c0ab00029a576473c0e12f84d252e630bb3809b",
-        })
+        }),
       ),
       signEIP712HashedMessage: jest.fn(() =>
         Promise.resolve({
           v: 27,
           r: "afb6e247b1c490e284053c87ab5f6b59e219d51f743f7a4d83e400782bc7e4b9",
           s: "479a268e0e0acd4de3f1e28e4fac2a6b32a4195e8dfa9d19147abe8807aa6f64",
-        })
+        }),
       ),
     });
 
@@ -508,11 +510,11 @@ describe("signTypedData", () => {
           ],
         },
       },
-      { version: "V4" }
+      { version: "V4" },
     );
 
     expect(signature).toEqual(
-      "0xafb6e247b1c490e284053c87ab5f6b59e219d51f743f7a4d83e400782bc7e4b9479a268e0e0acd4de3f1e28e4fac2a6b32a4195e8dfa9d19147abe8807aa6f641b"
+      "0xafb6e247b1c490e284053c87ab5f6b59e219d51f743f7a4d83e400782bc7e4b9479a268e0e0acd4de3f1e28e4fac2a6b32a4195e8dfa9d19147abe8807aa6f641b",
     );
   });
 });
@@ -553,7 +555,7 @@ describe("setTransport", () => {
     const trans = new Transport();
     const anotherDevice = "device_2";
     expect(() => keyring.setTransport(trans, anotherDevice)).toThrow(
-      "LedgerKeyring: deviceId mismatch."
+      "LedgerKeyring: deviceId mismatch.",
     );
   });
 
@@ -572,7 +574,7 @@ describe("openEthApp", () => {
     const keyring = new LedgerKeyring();
 
     expect(() => keyring.openEthApp()).toThrow(
-      "Ledger transport is not initialized. You must call setTransport first."
+      "Ledger transport is not initialized. You must call setTransport first.",
     );
   });
 
@@ -591,7 +593,7 @@ describe("openEthApp", () => {
       0xd8,
       0x00,
       0x00,
-      Buffer.from("Ethereum", "ascii")
+      Buffer.from("Ethereum", "ascii"),
     );
   });
 });
@@ -601,7 +603,7 @@ describe("quitApp", () => {
     const keyring = new LedgerKeyring();
 
     expect(() => keyring.quitApp()).toThrow(
-      "Ledger transport is not initialized. You must call setTransport first."
+      "Ledger transport is not initialized. You must call setTransport first.",
     );
   });
 
