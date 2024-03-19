@@ -45,7 +45,7 @@
     "*.ts": "yarn run lint:fix"
   },
   "dependencies": {
-    "@ethereumjs/tx": "^4.2.0",
+    "@ethereumjs/tx": "^5.3.0",
     "@ledgerhq/hw-app-eth": "6.35.6",
     "@metamask/eth-sig-util": "^7.0.1",
     "buffer": "^6.0.3",
